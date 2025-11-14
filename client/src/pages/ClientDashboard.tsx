@@ -17,12 +17,15 @@ import { ChatWindow } from "@/components/ChatWindow";
 import { Button } from "@/components/ui/button";
 import { Home, Heart, MessageCircle, LogOut, Search } from "lucide-react";
 import { Input } from "@/components/ui/input";
+import { ProtectedRoute } from "@/components/ProtectedRoute";
+import { useAuth } from "@/hooks/useAuth";
 import image1 from "@assets/generated_images/Modern_luxury_home_exterior_45e62a23.png";
 import image2 from "@assets/generated_images/Luxury_living_room_interior_f0ec0c2a.png";
 import image3 from "@assets/generated_images/Luxury_modern_kitchen_interior_01523308.png";
 import realtorAvatar from "@assets/generated_images/Professional_realtor_portrait_d3a2320f.png";
 
-export default function ClientDashboard() {
+function ClientDashboardContent() {
+  const { user, logout } = useAuth();
   const [isChatOpen, setIsChatOpen] = useState(false);
   const [chatMessages, setChatMessages] = useState<any[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
@@ -108,7 +111,7 @@ export default function ClientDashboard() {
     setTimeout(() => {
       const realtorMessage = {
         id: (Date.now() + 1).toString(),
-        text: "Thank you for your message! I'll get back to you shortly.",
+        text: "Obrigado pela sua mensagem! Entrarei em contato em breve.",
         sender: "realtor" as const,
         timestamp: new Date(),
       };
@@ -136,7 +139,7 @@ export default function ClientDashboard() {
                     <SidebarMenuButton asChild>
                       <a href="#" data-testid="link-browse">
                         <Home className="h-4 w-4" />
-                        <span>Browse Properties</span>
+                        <span>Explorar Imóveis</span>
                       </a>
                     </SidebarMenuButton>
                   </SidebarMenuItem>
@@ -144,7 +147,7 @@ export default function ClientDashboard() {
                     <SidebarMenuButton asChild>
                       <a href="#" data-testid="link-favorites">
                         <Heart className="h-4 w-4" />
-                        <span>Favorites</span>
+                        <span>Favoritos</span>
                       </a>
                     </SidebarMenuButton>
                   </SidebarMenuItem>
@@ -152,16 +155,16 @@ export default function ClientDashboard() {
                     <SidebarMenuButton asChild>
                       <a href="#" data-testid="link-messages">
                         <MessageCircle className="h-4 w-4" />
-                        <span>Messages</span>
+                        <span>Mensagens</span>
                       </a>
                     </SidebarMenuButton>
                   </SidebarMenuItem>
                   <SidebarMenuItem>
-                    <SidebarMenuButton asChild>
-                      <a href="#" data-testid="link-logout">
+                    <SidebarMenuButton asChild onClick={() => logout()}>
+                      <button data-testid="button-logout">
                         <LogOut className="h-4 w-4" />
-                        <span>Logout</span>
-                      </a>
+                        <span>Sair</span>
+                      </button>
                     </SidebarMenuButton>
                   </SidebarMenuItem>
                 </SidebarMenu>
@@ -174,12 +177,15 @@ export default function ClientDashboard() {
           <header className="flex items-center justify-between p-4 border-b gap-4">
             <div className="flex items-center gap-2">
               <SidebarTrigger data-testid="button-sidebar-toggle" />
+              <p className="text-sm text-muted-foreground hidden md:block">
+                Olá, <span className="font-medium text-foreground">{user?.name || user?.email}</span>
+              </p>
             </div>
             <div className="flex-1 max-w-md">
               <div className="relative">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                 <Input
-                  placeholder="Search properties..."
+                  placeholder="Buscar imóveis..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   className="pl-9"
@@ -194,10 +200,10 @@ export default function ClientDashboard() {
             <div className="max-w-7xl mx-auto space-y-6">
               <div>
                 <h1 className="text-3xl font-semibold font-serif">
-                  Explore Properties
+                  Explorar Imóveis
                 </h1>
                 <p className="text-muted-foreground mt-1">
-                  Discover your perfect home from our curated collection
+                  Descubra sua casa perfeita em nossa coleção curada
                 </p>
               </div>
 
@@ -237,5 +243,13 @@ export default function ClientDashboard() {
         onSendMessage={handleSendMessage}
       />
     </SidebarProvider>
+  );
+}
+
+export default function ClientDashboard() {
+  return (
+    <ProtectedRoute requiredRole="client">
+      <ClientDashboardContent />
+    </ProtectedRoute>
   );
 }

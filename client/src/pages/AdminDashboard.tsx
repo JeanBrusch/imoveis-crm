@@ -17,11 +17,14 @@ import { AdminPropertyForm } from "@/components/AdminPropertyForm";
 import { Button } from "@/components/ui/button";
 import { Home, LayoutDashboard, Plus, LogOut } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { ProtectedRoute } from "@/components/ProtectedRoute";
+import { useAuth } from "@/hooks/useAuth";
 import image1 from "@assets/generated_images/Modern_luxury_home_exterior_45e62a23.png";
 import image2 from "@assets/generated_images/Luxury_living_room_interior_f0ec0c2a.png";
 import image3 from "@assets/generated_images/Luxury_modern_kitchen_interior_01523308.png";
 
-export default function AdminDashboard() {
+function AdminDashboardContent() {
+  const { user, logout } = useAuth();
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [editingProperty, setEditingProperty] = useState<string | null>(null);
 
@@ -105,11 +108,11 @@ export default function AdminDashboard() {
                     </SidebarMenuButton>
                   </SidebarMenuItem>
                   <SidebarMenuItem>
-                    <SidebarMenuButton asChild>
-                      <a href="#" data-testid="link-logout">
+                    <SidebarMenuButton asChild onClick={() => logout()}>
+                      <button data-testid="button-logout">
                         <LogOut className="h-4 w-4" />
-                        <span>Logout</span>
-                      </a>
+                        <span>Sair</span>
+                      </button>
                     </SidebarMenuButton>
                   </SidebarMenuItem>
                 </SidebarMenu>
@@ -120,7 +123,14 @@ export default function AdminDashboard() {
 
         <div className="flex flex-col flex-1">
           <header className="flex items-center justify-between p-4 border-b">
-            <SidebarTrigger data-testid="button-sidebar-toggle" />
+            <div className="flex items-center gap-4">
+              <SidebarTrigger data-testid="button-sidebar-toggle" />
+              <div>
+                <p className="text-sm text-muted-foreground">
+                  Bem-vindo, <span className="font-medium text-foreground">{user?.name || user?.email}</span>
+                </p>
+              </div>
+            </div>
             <ThemeToggle />
           </header>
 
@@ -128,9 +138,9 @@ export default function AdminDashboard() {
             <div className="max-w-7xl mx-auto space-y-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <h1 className="text-3xl font-semibold font-serif">Properties</h1>
+                  <h1 className="text-3xl font-semibold font-serif">Propriedades</h1>
                   <p className="text-muted-foreground mt-1">
-                    Manage your property listings
+                    Gerencie seus anúncios de imóveis
                   </p>
                 </div>
                 <Button
@@ -138,7 +148,7 @@ export default function AdminDashboard() {
                   data-testid="button-add-property"
                 >
                   <Plus className="h-4 w-4 mr-2" />
-                  Add Property
+                  Adicionar Imóvel
                 </Button>
               </div>
 
@@ -157,7 +167,7 @@ export default function AdminDashboard() {
         <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle className="font-serif text-2xl">
-              {editingProperty ? "Edit Property" : "Add New Property"}
+              {editingProperty ? "Editar Imóvel" : "Adicionar Novo Imóvel"}
             </DialogTitle>
           </DialogHeader>
           <AdminPropertyForm
@@ -170,5 +180,13 @@ export default function AdminDashboard() {
         </DialogContent>
       </Dialog>
     </SidebarProvider>
+  );
+}
+
+export default function AdminDashboard() {
+  return (
+    <ProtectedRoute requiredRole="admin">
+      <AdminDashboardContent />
+    </ProtectedRoute>
   );
 }
