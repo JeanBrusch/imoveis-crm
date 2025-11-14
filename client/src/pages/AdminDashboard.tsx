@@ -108,11 +108,9 @@ function AdminDashboardContent() {
                     </SidebarMenuButton>
                   </SidebarMenuItem>
                   <SidebarMenuItem>
-                    <SidebarMenuButton asChild onClick={() => logout()}>
-                      <button data-testid="button-logout">
-                        <LogOut className="h-4 w-4" />
-                        <span>Sair</span>
-                      </button>
+                    <SidebarMenuButton onClick={() => logout()} data-testid="button-logout">
+                      <LogOut className="h-4 w-4" />
+                      <span>Sair</span>
                     </SidebarMenuButton>
                   </SidebarMenuItem>
                 </SidebarMenu>

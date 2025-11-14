@@ -1,5 +1,5 @@
 import { useAuth } from "@/hooks/useAuth";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useLocation } from "wouter";
 
 export interface ProtectedRouteProps {
@@ -10,18 +10,32 @@ export interface ProtectedRouteProps {
 export function ProtectedRoute({ children, requiredRole }: ProtectedRouteProps) {
   const { user, isLoading } = useAuth();
   const [, setLocation] = useLocation();
+  const [shouldRender, setShouldRender] = useState(false);
 
   useEffect(() => {
-    if (!isLoading && !user) {
+    if (isLoading) {
+      setShouldRender(false);
+      return;
+    }
+
+    if (!user) {
       setLocation("/login");
-    } else if (!isLoading && user && requiredRole && user.role !== requiredRole) {
+      setShouldRender(false);
+      return;
+    }
+
+    if (requiredRole && user.role !== requiredRole) {
       // Redirect to appropriate dashboard if role doesn't match
       if (user.role === "admin") {
         setLocation("/admin");
       } else {
         setLocation("/dashboard");
       }
+      setShouldRender(false);
+      return;
     }
+
+    setShouldRender(true);
   }, [user, isLoading, requiredRole, setLocation]);
 
   if (isLoading) {
@@ -35,7 +49,7 @@ export function ProtectedRoute({ children, requiredRole }: ProtectedRouteProps) 
     );
   }
 
-  if (!user || (requiredRole && user.role !== requiredRole)) {
+  if (!shouldRender) {
     return null;
   }
 
